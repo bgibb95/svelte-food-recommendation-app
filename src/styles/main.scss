@@ -1,0 +1,19 @@
+body {
+  background: rgb(34, 34, 34);
+}
+
+.no-icon {
+  svg {
+    path {
+      stroke: red !important;
+    }
+  }
+}
+
+.yes-icon {
+  svg {
+    polyline {
+      stroke: green !important;
+    }
+  }
+}
