@@ -12,7 +12,7 @@
   main {
     position: relative;
     max-width: 95vw;
-    background-color: white;
+    //background-color: rgb(52, 0, 73);
     padding: 2em;
     margin: 0 auto;
     box-sizing: border-box;

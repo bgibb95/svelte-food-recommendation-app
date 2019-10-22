@@ -2,17 +2,14 @@
   import { onMount } from "svelte";
 
   let foodData = [];
+  let categories = ["All"];
   let filterValue = "";
   let filteredFoodData = [];
   let selected = 1;
   let showFood = true;
 
   onMount(async () => {
-    const response = await fetch("http://localhost:8000/api/foods");
-    const json = await response.json();
-    foodData = json;
-    filteredFoodData = foodData;
-
+    fetchFoodData();
     // UIkit.notification({
     //   message: "my-message!",
     //   status: "primary",
@@ -23,7 +20,22 @@
 
   $: {
     console.log(selected);
-    updateSearch();
+    updateFilters();
+  }
+
+  async function fetchFoodData() {
+    const response = await fetch("http://localhost:8000/api/foods");
+    const json = await response.json();
+
+    foodData = json;
+
+    foodData.forEach(food => {
+      if (!categories.includes(food.category)) {
+        categories.push(food.category);
+      }
+    });
+
+    filteredFoodData = foodData;
   }
 
   function updateShowFood(recommended) {
@@ -40,7 +52,7 @@
     }
   }
 
-  function updateSearch() {
+  function updateFilters() {
     filteredFoodData = foodData.filter(food => {
       updateShowFood(food.recommended);
       return (
@@ -54,6 +66,13 @@
   td {
     padding: 5px 12px;
   }
+  label {
+    display: inline-block;
+    margin-top: 5px;
+  }
+  .side-bar {
+    margin-top: 36px;
+  }
 </style>
 
 <svelte:head>
@@ -61,33 +80,34 @@
 </svelte:head>
 
 <div class="uk-flex">
-  <div class="uk-width-1-4">
-    <form class="uk-search uk-search-large">
-      <span uk-search-icon />
+  <div class="uk-width-1-4 side-bar">
+    <form class="uk-search uk-search-default">
+      <a href="" uk-search-icon />
       <input
         class="uk-search-input"
         type="search"
         bind:value={filterValue}
-        on:keydown={updateSearch}
+        on:keydown={updateFilters}
         placeholder="Search..." />
-
     </form>
-
     <div class="uk-margin">
       <h5>Category</h5>
-      <div uk-form-custom="target: > * > span:first-child">
-        <select>
-          <option value="">Please select...</option>
-          <option value="1">Option 01</option>
-          <option value="2">Option 02</option>
-          <option value="3">Option 03</option>
-          <option value="4">Option 04</option>
-        </select>
-        <button class="uk-button uk-button-default" type="button" tabindex="-1">
-          <span />
-          <span uk-icon="icon: chevron-down" />
-        </button>
-      </div>
+      {#if categories.length > 1}
+        <div uk-form-custom="target: > * > span:first-child">
+          <select>
+            {#each categories as category}
+              <option value={category}>{category}</option>
+            {/each}
+          </select>
+          <button
+            class="uk-button uk-button-default"
+            type="button"
+            tabindex="-1">
+            <span />
+            <span uk-icon="icon: chevron-down" />
+          </button>
+        </div>
+      {/if}
     </div>
 
     <div class="uk-margin uk-grid-small uk-child-width-auto ">
