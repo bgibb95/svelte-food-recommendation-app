@@ -33,6 +33,7 @@
         "https://go-food-api.herokuapp.com/api/foods"
       );
       const json = await response.json();
+      isLoading = false;
 
       foodData = json;
 
