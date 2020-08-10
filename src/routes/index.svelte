@@ -5,8 +5,10 @@
   let categories = ["All"];
   let filterValue = "";
   let filteredFoodData = [];
-  let selected = 1;
+  let selected = 3;
   let showFood = true;
+  let selectedCategory = "All";
+  let isLoading = false;
 
   onMount(async () => {
     fetchFoodData();
@@ -19,23 +21,32 @@
   });
 
   $: {
-    console.log(selected);
     updateFilters();
   }
 
   async function fetchFoodData() {
-    const response = await fetch("http://localhost:8000/api/foods");
-    const json = await response.json();
+    isLoading = true;
 
-    foodData = json;
+    try {
+      //const response = await fetch("http://localhost:8000/api/foods");
+      const response = await fetch(
+        "https://go-food-api.herokuapp.com/api/foods"
+      );
+      const json = await response.json();
 
-    foodData.forEach(food => {
-      if (!categories.includes(food.category)) {
-        categories.push(food.category);
-      }
-    });
+      foodData = json;
 
-    filteredFoodData = foodData;
+      foodData.forEach(food => {
+        if (!categories.includes(food.category)) {
+          categories.push(food.category);
+        }
+      });
+
+      filteredFoodData = foodData;
+    } catch (error) {
+      isLoading = false;
+      console.log(error);
+    }
   }
 
   function updateShowFood(recommended) {
@@ -55,14 +66,21 @@
   function updateFilters() {
     filteredFoodData = foodData.filter(food => {
       updateShowFood(food.recommended);
+      let doesCategoryMatch =
+        selectedCategory === "All" ? true : food.category === selectedCategory;
       return (
-        food.name.toLowerCase().includes(filterValue.toLowerCase()) && showFood
+        food.name.toLowerCase().includes(filterValue.toLowerCase()) &&
+        showFood &&
+        doesCategoryMatch
       );
     });
   }
 </script>
 
 <style lang="scss">
+  .reduced-padding {
+    padding: 5px;
+  }
   td {
     padding: 5px 12px;
   }
@@ -73,14 +91,20 @@
   .side-bar {
     margin-top: 36px;
   }
+  .uk-table th {
+    padding: 16px 10px 16px 5px;
+  }
+  tr {
+    border-top: 1px solid #e5e5e559 !important;
+  }
 </style>
 
 <svelte:head>
-  <title>Food recommendedation app</title>
+  <title>Food guardian</title>
 </svelte:head>
 
-<div class="uk-flex">
-  <div class="uk-width-1-4 side-bar">
+<div>
+  <div>
     <form class="uk-search uk-search-default">
       <a href="" uk-search-icon />
       <input
@@ -94,7 +118,7 @@
       <h5>Category</h5>
       {#if categories.length > 1}
         <div uk-form-custom="target: > * > span:first-child">
-          <select>
+          <select bind:value={selectedCategory} on:change={updateFilters}>
             {#each categories as category}
               <option value={category}>{category}</option>
             {/each}
@@ -144,8 +168,8 @@
     </div>
   </div>
 
-  {#if foodData.length === 0}
-    <div uk-spinner="ratio: 3" />
+  {#if isLoading}
+    <div uk-spinner="ratio: 2" />
   {/if}
 
   {#if foodData.length > 0}
@@ -153,26 +177,26 @@
       <thead>
         <tr>
           <th>Name</th>
-          <th>Recommended</th>
+          <th>Safe</th>
           <th>Category</th>
-          <th>Comments</th>
+          <th>Comment</th>
         </tr>
       </thead>
       <tbody>
         {#each filteredFoodData as food}
           <tr>
-            <td>
+            <td class="reduced-padding">
               <b>{food.name}</b>
             </td>
-            <td>
+            <td class="reduced-padding">
               {#if food.recommended === true}
                 <span class="uk-margin-small-right yes-icon" uk-icon="check" />
               {:else if food.recommended === false}
                 <span class="uk-margin-small-right no-icon" uk-icon="close" />
               {/if}
             </td>
-            <td>{food.category}</td>
-            <td>{food.comments}</td>
+            <td class="reduced-padding">{food.category}</td>
+            <td class="reduced-padding">{food.comments}</td>
           </tr>
         {/each}
       </tbody>

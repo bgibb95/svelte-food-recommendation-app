@@ -13,7 +13,7 @@
     position: relative;
     max-width: 95vw;
     //background-color: rgb(52, 0, 73);
-    padding: 2em;
+    padding: 1em 0px;
     margin: 0 auto;
     box-sizing: border-box;
   }
