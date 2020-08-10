@@ -9,6 +9,7 @@
   let showFood = true;
   let selectedCategory = "All";
   let isLoading = false;
+  let errorMessage = "";
 
   onMount(async () => {
     fetchFoodData();
@@ -20,10 +21,6 @@
     // });
   });
 
-  $: {
-    updateFilters();
-  }
-
   async function fetchFoodData() {
     isLoading = true;
 
@@ -33,10 +30,18 @@
           ? "http://localhost:8000/api/foods"
           : "https://go-food-api.herokuapp.com/api/foods";
       const response = await fetch(url);
+
+      if (!response.ok) {
+        isLoading = false;
+        throw response;
+      }
+
       const json = await response.json();
+
       isLoading = false;
 
       foodData = json;
+      errorMessage = null;
 
       foodData.forEach(food => {
         if (!categories.includes(food.category)) {
@@ -48,6 +53,7 @@
     } catch (error) {
       isLoading = false;
       console.log(error);
+      errorMessage = error.statusText;
     }
   }
 
@@ -80,6 +86,13 @@
 </script>
 
 <style lang="scss">
+  .controls-container {
+    background: rgba(34, 34, 34, 0.95);
+    border-radius: 24px;
+    padding: 24px;
+    margin: 24px auto;
+    height: max-content;
+  }
   .reduced-padding {
     padding: 5px;
   }
@@ -99,26 +112,52 @@
   tr {
     border-top: 1px solid #e5e5e559 !important;
   }
+  th {
+    color: #f8a0d4;
+    font-weight: bold;
+    text-transform: capitalize;
+  }
+  .main-container {
+    display: flex;
+    justify-content: center;
+
+    @media (max-width: 780px) {
+      flex-direction: column;
+    }
+  }
+  .stick {
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    top: 40px;
+
+    @media (max-width: 780px) {
+      position: relative;
+      top: 0;
+    }
+  }
 </style>
 
 <svelte:head>
   <title>Food guardian</title>
 </svelte:head>
 
-<div>
-  <div>
-    <form class="uk-search uk-search-default">
-      <a href="" uk-search-icon />
-      <input
-        class="uk-search-input"
-        type="search"
-        bind:value={filterValue}
-        on:keydown={updateFilters}
-        placeholder="Search..." />
-    </form>
-    <div class="uk-margin">
-      <h5>Category</h5>
-      {#if categories.length > 1}
+<div class="main-container">
+  <div class="controls-container stick">
+    {#if foodData.length > 0}
+      <form class="uk-search uk-search-default">
+        <a href="" uk-search-icon />
+        <input
+          class="uk-search-input"
+          type="search"
+          bind:value={filterValue}
+          on:keydown={updateFilters}
+          placeholder="Search..." />
+      </form>
+    {/if}
+    {#if categories.length > 1}
+      <div class="uk-margin">
+
+        <h5>Category</h5>
         <div uk-form-custom="target: > * > span:first-child">
           <select bind:value={selectedCategory} on:change={updateFilters}>
             {#each categories as category}
@@ -133,75 +172,96 @@
             <span uk-icon="icon: chevron-down" />
           </button>
         </div>
-      {/if}
-    </div>
 
-    <div class="uk-margin uk-grid-small uk-child-width-auto ">
-      <label>
-        <input
-          class="uk-radio"
-          type="radio"
-          name="radio2"
-          checked
-          value={1}
-          bind:group={selected} />
-        Recommended
-      </label>
-      <br />
-      <label>
-        <input
-          class="uk-radio"
-          type="radio"
-          name="radio2"
-          value={2}
-          bind:group={selected} />
-        Not Recommended
-      </label>
-      <br />
-      <label>
-        <input
-          class="uk-radio"
-          type="radio"
-          name="radio2"
-          value={3}
-          bind:group={selected} />
-        All
-      </label>
-    </div>
+      </div>
+    {/if}
+
+    {#if foodData.length > 0}
+      <div class="uk-margin uk-grid-small uk-child-width-auto ">
+        <label>
+          <input
+            class="uk-radio"
+            type="radio"
+            name="radio2"
+            checked
+            value={1}
+            on:change={updateFilters}
+            bind:group={selected} />
+          Recommended
+        </label>
+        <br />
+        <label>
+          <input
+            class="uk-radio"
+            type="radio"
+            name="radio2"
+            value={2}
+            on:change={updateFilters}
+            bind:group={selected} />
+          Not Recommended
+        </label>
+        <br />
+        <label>
+          <input
+            class="uk-radio"
+            type="radio"
+            name="radio2"
+            value={3}
+            on:change={updateFilters}
+            bind:group={selected} />
+          All
+        </label>
+      </div>
+    {/if}
+
+    {#if isLoading}
+      <div uk-spinner="ratio: 2" />
+    {/if}
+
+    {#if !isLoading && !foodData.length > 0 && errorMessage}
+      <h3>
+        <b>Oh no!</b>
+      </h3>
+      <h5>Something went wrong. Please try again later.</h5>
+      <p>
+        Error details:
+        <b>{errorMessage}</b>
+      </p>
+    {/if}
   </div>
 
-  {#if isLoading}
-    <div uk-spinner="ratio: 2" />
-  {/if}
-
   {#if foodData.length > 0}
-    <table class="uk-table uk-table-divider">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Safe</th>
-          <th>Category</th>
-          <th>Comment</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each filteredFoodData as food}
+    <div class="controls-container">
+      <table class="uk-table uk-table-divider">
+        <thead>
           <tr>
-            <td class="reduced-padding">
-              <b>{food.name}</b>
-            </td>
-            <td class="reduced-padding">
-              {#if food.recommended === true}
-                <span class="uk-margin-small-right yes-icon" uk-icon="check" />
-              {:else if food.recommended === false}
-                <span class="uk-margin-small-right no-icon" uk-icon="close" />
-              {/if}
-            </td>
-            <td class="reduced-padding">{food.category}</td>
-            <td class="reduced-padding">{food.comments}</td>
+            <th>Name</th>
+            <th>Safe</th>
+            <th>Category</th>
+            <th>Comment</th>
           </tr>
-        {/each}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {#each filteredFoodData as food}
+            <tr>
+              <td class="reduced-padding">
+                <b>{food.name}</b>
+              </td>
+              <td class="reduced-padding">
+                {#if food.recommended === true}
+                  <span
+                    class="uk-margin-small-right yes-icon"
+                    uk-icon="check" />
+                {:else if food.recommended === false}
+                  <span class="uk-margin-small-right no-icon" uk-icon="close" />
+                {/if}
+              </td>
+              <td class="reduced-padding">{food.category}</td>
+              <td class="reduced-padding">{food.comments}</td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
   {/if}
 </div>
