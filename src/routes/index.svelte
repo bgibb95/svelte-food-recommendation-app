@@ -93,11 +93,20 @@
     margin: 24px auto;
     height: max-content;
   }
+  .table-container {
+    @media (max-width: 780px) {
+      padding: 24px 10px;
+    }
+  }
   .reduced-padding {
     padding: 5px;
   }
   td {
     padding: 5px 12px;
+
+    @media (max-width: 780px) {
+      font-size: 0.8rem;
+    }
   }
   label {
     display: inline-block;
@@ -231,14 +240,14 @@
   </div>
 
   {#if foodData.length > 0}
-    <div class="controls-container">
+    <div class="controls-container table-container">
       <table class="uk-table uk-table-divider">
         <thead>
           <tr>
             <th>Name</th>
             <th>Safe</th>
             <th>Category</th>
-            <th>Comment</th>
+            <th>Note</th>
           </tr>
         </thead>
         <tbody>

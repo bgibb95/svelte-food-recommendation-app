@@ -11,7 +11,7 @@
 
   main {
     position: relative;
-    max-width: 95vw;
+    max-width: 97vw;
     padding: 1em 0px;
     margin: 0 auto;
     box-sizing: border-box;
