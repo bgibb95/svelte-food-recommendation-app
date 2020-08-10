@@ -28,10 +28,11 @@
     isLoading = true;
 
     try {
-      //const response = await fetch("http://localhost:8000/api/foods");
-      const response = await fetch(
-        "https://go-food-api.herokuapp.com/api/foods"
-      );
+      const url =
+        process.env.NODE_ENV === "development"
+          ? "http://localhost:8000/api/foods"
+          : "https://go-food-api.herokuapp.com/api/foods";
+      const response = await fetch(url);
       const json = await response.json();
       isLoading = false;
 
