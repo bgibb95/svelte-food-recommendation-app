@@ -29,6 +29,7 @@
         process.env.NODE_ENV === "development"
           ? "http://localhost:8000/api/foods"
           : "https://go-food-api.herokuapp.com/api/foods";
+
       const response = await fetch(url);
 
       if (!response.ok) {
@@ -53,7 +54,7 @@
     } catch (error) {
       isLoading = false;
       console.log(error);
-      errorMessage = error.statusText;
+      errorMessage = error.statusText || error.message;
     }
   }
 
@@ -112,9 +113,6 @@
     display: inline-block;
     margin-top: 5px;
   }
-  .side-bar {
-    margin-top: 36px;
-  }
   .uk-table th {
     padding: 16px 10px 16px 5px;
   }
@@ -154,7 +152,7 @@
   <div class="controls-container stick">
     {#if foodData.length > 0}
       <form class="uk-search uk-search-default">
-        <a href="" uk-search-icon />
+        <button uk-search-icon />
         <input
           class="uk-search-input"
           type="search"
@@ -229,7 +227,7 @@
 
     {#if !isLoading && !foodData.length > 0 && errorMessage}
       <h3>
-        <b>Oh no!</b>
+        <b>Sorry</b>
       </h3>
       <h5>Something went wrong. Please try again later.</h5>
       <p>
