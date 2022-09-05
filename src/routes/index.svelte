@@ -150,7 +150,7 @@
 
 <div class="main-container">
   <div class="controls-container stick">
-    {#if foodData.length > 0}
+    {#if foodData.length}
       <form class="uk-search uk-search-default">
         <button uk-search-icon />
         <input
@@ -183,7 +183,7 @@
       </div>
     {/if}
 
-    {#if foodData.length > 0}
+    {#if foodData.length}
       <div class="uk-margin uk-grid-small uk-child-width-auto ">
         <label>
           <input
@@ -236,7 +236,7 @@
       </p>
     {/if}
 
-    {#if !isLoading}
+    {#if !isLoading && foodData.length}
     <a href="https://www.healthline.com/nutrition/plant-paradox-diet" target="_blank">Read caveats</a>
     {/if}
   </div>
