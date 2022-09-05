@@ -145,7 +145,7 @@
 </style>
 
 <svelte:head>
-  <title>Food guardian</title>
+  <title>The Experimental Diet Guide</title>
 </svelte:head>
 
 <div class="main-container">
@@ -234,6 +234,10 @@
         Error details:
         <b>{errorMessage}</b>
       </p>
+    {/if}
+
+    {#if !isLoading}
+    <a href="https://www.healthline.com/nutrition/plant-paradox-diet" target="_blank">Read caveats</a>
     {/if}
   </div>
 
