@@ -28,8 +28,7 @@
       const url =
         process.env.NODE_ENV === "development"
           ? "http://localhost:8000/api/foods"
-          : "https://go-food-api.herokuapp.com/api/foods";
-
+          : "https://web-production-fc82.up.railway.app/api/foods";
       const response = await fetch(url);
 
       if (!response.ok) {
@@ -41,8 +40,9 @@
 
       isLoading = false;
 
-      foodData = json;
-      errorMessage = null;
+      foodData = json || [];
+
+      errorMessage = !foodData.length ? "Foods not found" : null;
 
       foodData.forEach(food => {
         if (!categories.includes(food.category)) {
@@ -225,7 +225,7 @@
       <div uk-spinner="ratio: 2" />
     {/if}
 
-    {#if !isLoading && !foodData.length > 0 && errorMessage}
+    {#if !isLoading && !foodData.length && errorMessage}
       <h3>
         <b>Sorry</b>
       </h3>
